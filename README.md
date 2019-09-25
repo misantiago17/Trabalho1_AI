@@ -1,1 +1,1 @@
-Trabalho de solução do TSP - Traveling Sailsman Problem utilizando metaheuristicas.
+Solução do TSP - Traveling Sailsman Problem utilizando metaheuristicas.
