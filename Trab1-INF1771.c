@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
 int *geraSolInicial(int **m) {}
 
 int main(int argc, char *argv[]) {
