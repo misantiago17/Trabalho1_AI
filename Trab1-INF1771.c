@@ -24,29 +24,8 @@ int objetivo (int * sol, int **mat, int t){
 	return cont;
 }
 
-// Faz o swap
-/*int *bestNeighbour(int **m, int t, int *s){ 
 
-	int aux, *melhor = s;
-
-	for (int i = 0; i < t; i++){
-		for (int j = 1; j < t; j++){
-
-			atual = s;
-
-			printf("", atual[])
-
-			aux = melhor[i];
-			melhor[i] = melhor[j];
-			melhor[j] = aux;
-			if(objetivo(melhor,m,t) < objetivo(melhor,m,t))
-				melhor = melhor;
-		}
-	}
-	return melhor;
-}*/
-
-// essa funcao tem muita repetição - otimizar
+// Realiza o Swap completo e retorna o melhor vizinho
 int *bestNeighbour(int **m, int t, int *s){ 
 
 	int *vizinhanca = (int *) malloc (t* sizeof(int));
@@ -58,18 +37,6 @@ int *bestNeighbour(int **m, int t, int *s){
 
 		VizinhoTrocado = s[i];
 
-		/*printf("Tamanho T: %d\n", t);
-
-		printf("Vetor original mandado:");
-		for (int h=0; h < t;h++){
-			printf("%d ", s[h]);
-		}		
-		printf("\n");
-
-		printf("Vizinho a ser trocado: %d \n", VizinhoTrocado);*/
-
-		printf("\n\nValor de i: %d\n\n", i);
-
 		// faz a troca desse valor em cada uma das posicoes do vetor
 		for (int j=0; j<t; j++){
 
@@ -77,43 +44,20 @@ int *bestNeighbour(int **m, int t, int *s){
 			for (int h=0; h<t; h++)
 				vizinhanca[h] = s[h];
 
-			/*printf("Vetor vizinhanca reiniciado:");
-			for (int k=0; k < t;k++){
-				printf("%d ", vizinhanca[k]);
-			}		
-			printf("\n");*/
-
-
-			// Não faz a troca caso seja igual -> testa o vetor vizinhanca como ele está - tem repetição (otimizar)
-
-			if (j != i){ // Faz a troca
-				
-				/*printf("Indices:\ni:%d\nj:%d\n\n",i,j);
-
-				printf("i inicial: %d\n", vizinhanca[i]); // tem que ser zero
-				printf("j inicial: %d\n", vizinhanca[j]);
-				printf("\n");*/
+			// Faz a troca sem repetição (>)
+			// Faz a funcao objetiva do vetor original uma única vez (j=i && i=0)
+			if (j > i || (j==i && i==0)){ 	
 
 				vizinhanca[i] = vizinhanca[j];
-				//printf("Item original que vai pra tras: %d\n", vizinhanca[j]);
 				vizinhanca[j] = VizinhoTrocado;
 
-				/*printf("i final: %d\n", vizinhanca[i]);
-				printf("j final: %d\n", vizinhanca[j]);	// tem que ser zero
-				printf("-------------\n");*/
-			}
+				printf("resposta Objetivo da vizinhanca: %d\n",objetivo(vizinhanca,m,t));
+				printf("resposta Objetivo melhor vizinhanca: %d\n",objetivo(melhorVizinhanca,m,t));
 
-			/*printf("Vetor vizinhanca feito:");
-			for (int p=0; p < t;p++){
-				printf("%d ", vizinhanca[p]);
-			}		
-			printf("\n");*/
-
-			printf("resposta Objetivo da vizinhanca: %d\n",objetivo(vizinhanca,m,t));
-			printf("resposta Objetivo melhor vizinhanca: %d\n",objetivo(melhorVizinhanca,m,t));
-
-			if (objetivo(vizinhanca,m,t) < objetivo(melhorVizinhanca,m,t)){
-				melhorVizinhanca = vizinhanca;
+				// Dado o vetor de vizinhos criado, compara com a melhor vizinhança
+				if (objetivo(vizinhanca,m,t) < objetivo(melhorVizinhanca,m,t)){
+					melhorVizinhanca = vizinhanca;
+				}
 			}
 		}
 	}
