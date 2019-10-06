@@ -2,6 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "lerArquivos.h"
+
+// Simulated Annealing 
+// 1 - Escolha um estado inicial s (por algoritmo guloso?)
+// 2 - Escolha aleatoriamente um estado t, a partir dos vizinhos de s
+// 3 - Se f(t) for melhor do que f(s), então s = t
+// 4 - senão, com uma probabilidade baixa, faça s = t
+// 5 - Repete o passo 2 até parar
+
 
 int *geraSolInicial(int t) {
 
@@ -68,92 +77,31 @@ int *bestNeighbour(int **m, int t, int *s){
 }
 
 int main(int argc, char *argv[]) {
-	FILE *f; 
-	int **matDist; // Matriz contendo a distancia entre as cidades
-	char s[30]; 
-	int qtdCidades = 0, i, j, cont,n; 
-    clock_t Ticks[2];
-    int *solCorrente;
-    //***************** LEITURA DA MATRIZ DE DISTANCIA ENTRE AS CIDADES **********************//
-    printf("Arquivos:\n1 - brazil58.tsp\n2 - gr24.tsp\n3 - gr120.tsp\n4 - hk48.tsp\n5 - si175.tsp\n");
-    scanf("%d", &n);
 
-	if(n == 1)      f = fopen("brazil58.tsp","rt");
-    else if(n == 2) f = fopen("gr24.tsp","rt"); 
-    else if(n == 3) f = fopen("gr120.tsp","rt"); 
-    else if(n == 4) f = fopen("hk48.tsp","rt"); 
-    else if(n == 5) f = fopen("si175.tsp","rt");
-    else {
-    	puts("Arquivo não existente");
-    	exit(1);
+	int **matrizDistancias; // Matriz contendo a distância entre as cidades
+	int quantidadeCidades = 0; // Numero de cidades envolvidas no arquivo
+
+    int *solCorrente;
+
+	// faz a leitura, recebe matriz de distâncias do arquivo escolhido e le a quantidade de cidades envolvidas no arquivo
+	escolherArquivo();
+	matrizDistancias = leMatrizdistancias();
+	quantidadeCidades = leNumeroCidades();
+
+	// Passar isso para alguma função
+	for(int i = 0; i < quantidadeCidades; i++){
+        for (int j = 0; j < quantidadeCidades; j++){
+
+            if (i > j){
+                printf("Matriz Distancias[%d][%d]: %d\n\n",i,j,matrizDistancias[i][j]);
+            }
+        }
     }
 
-    if(f == NULL) {
-		printf("Erro na leitura do arquivo\n");
-		exit(1);
-	}
-	while(qtdCidades == 0) { 
-		fscanf(f,"%s",&s);
-		if(strcmp(s, "DIMENSION:") == 0) {
-			fscanf(f,"%d",&qtdCidades);
-		}
-	}
-
-	matDist = (int **) malloc(qtdCidades * sizeof(int**)); 
-	for(i = 0; i < qtdCidades; i++) {
-		matDist[i] = (int*) malloc(qtdCidades * sizeof(int));
-		for(j = 0; j < qtdCidades; j++) {
-			matDist[i][j] = 0;
-		}
-	}
-
-	i = 0; j = 0;
-	while(strcmp(s,"EDGE_WEIGHT_FORMAT:") != 0) 
-		fscanf(f,"%s",&s);
-    
-	fscanf(f,"%s",&s);
-	if(strcmp(s,"LOWER_DIAG_ROW") == 0 || strcmp(s,"LOWER_ROW") == 0) { 
-		while(strcmp(s,"EDGE_WEIGHT_SECTION") != 0) 
-			fscanf(f,"%s",&s);
-		cont = ((qtdCidades * qtdCidades)/2) + (qtdCidades/2);
-        printf("%d",cont);
-		while(cont > 0) { 
-			fscanf(f,"%d",&matDist[i][j]);
-			matDist[j][i] = matDist[i][j];
-			printf("matDist[%d][%d]: %d\n",i,j,matDist[i][j]);
-			if(matDist[i][j] == 0) {
-				i++;
-				j = 0;
-			}
-			else
-				j++;
-			cont--;
-		}
-	}
-	if(strcmp(s,"UPPER_DIAG_ROW") == 0 || strcmp(s,"UPPER_ROW") == 0) { 
-		while(strcmp(s,"EDGE_WEIGHT_SECTION") != 0) 
-			fscanf(f,"%s",&s);
-		cont = ((qtdCidades * qtdCidades)/2) - (qtdCidades/2);
-		while(cont > 0) { 
-			if(i >= j)
-				j++;
-			else if(j == qtdCidades) {
-				i++;
-				j = 0;
-			}
-			else {
-				fscanf(f,"%d",&matDist[i][j]);
-				matDist[j][i] = matDist[i][j];
-				printf("matDist[%d][%d]: %d\n",i,j,matDist[i][j]);
-				cont--;
-				j++;
-			}
-		}
-	}
-    //***************** LEITURA DA MATRIZ DE DISTANCIA ENTRE AS CIDADES **********************//
+	clock_t Ticks[2];
     Ticks[0] = clock();
-    solCorrente = geraSolInicial(qtdCidades);
-    solCorrente = bestNeighbour(matDist, qtdCidades, solCorrente);
+    //solCorrente = geraSolInicial(qtdCidades);
+    //solCorrente = bestNeighbour(matrizDistancias, qtdCidades, solCorrente);
     //chamada funcao metaheuristica
 
 	// Clock da CPU
@@ -161,11 +109,13 @@ int main(int argc, char *argv[]) {
     double Tempo = (Ticks[1] - Ticks[0]) * 1000.0 / CLOCKS_PER_SEC;
     printf("Tempo gasto: %g ms.\n", Tempo);
 
-    for (i=0; i < qtdCidades;i++)
+    /*for (i=0; i < qtdCidades;i++)
     	printf("%d ", solCorrente[i]);
 
-	printf("\n");
+	printf("\n");*/
 
-	fclose(f);
+	// Fecha o arquivo lido
+	fechaArquivo();
+
 	return 0;
 }
