@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <string.h>
 #include <time.h>
 #include "lerArquivos.h"
+
+int temperature = 500;
+int iteration;
 
 // Simulated Annealing 
 // 1 - Escolha um estado inicial s (por algoritmo guloso?)
@@ -10,7 +14,23 @@
 // 3 - Se f(t) for melhor do que f(s), então s = t
 // 4 - senão, com uma probabilidade baixa, faça s = t
 // 5 - Repete o passo 2 até parar
+// Quanto que  solução vale no total - repensar na função objetivo
 
+int objetivo (int * sol, int **mat, int t){
+	int cont = 0;
+	for (int i = 0; i < t; i++){
+		cont += mat[sol[i]][sol[i+1]];
+	}
+	return cont;
+}
+
+int simulatedAnnealing(int delta, int **mat, int t){
+	double deltatemp = -1 * delta/temperature;
+	double p = exp(deltatemp);
+
+	if (p < 1) return 0;
+	else return 1;
+}
 
 int *geraSolInicial(int t) {
 
@@ -23,23 +43,17 @@ int *geraSolInicial(int t) {
 	return v;
 }
 
-// Quanto que  solução vale no total - repensar na função objetivo
-int objetivo (int * sol, int **mat, int t){
-
-	int cont = 0;
-	for (int i = 0; i < t; i++){
-		cont += mat[i][i+1];
-	}
-	return cont;
-}
-
-
 // Realiza o Swap completo e retorna o melhor vizinho
 int *bestNeighbour(int **m, int t, int *s){ 
 
 	int *vizinhanca = (int *) malloc (t* sizeof(int));
-	int *melhorVizinhanca = s;
+	int *melhorVizinhanca = (int *) malloc (t* sizeof(int));
+	//int *melhorVizinhanca = s;
 	int VizinhoTrocado;
+	int contIteration = 0;
+
+	for (int h=0; h<t; h++)
+		melhorVizinhanca[h] = s[h];
 
 	// pega um valor do vetor original
 	for (int i=0; i<t; i++){
@@ -48,7 +62,12 @@ int *bestNeighbour(int **m, int t, int *s){
 
 		// faz a troca desse valor em cada uma das posicoes do vetor
 		for (int j=0; j<t; j++){
-
+			contIteration++;
+			if (contIteration == iteration){
+				temperature -= 1; // diminui valor da temperatura a iterações do numero de cidades
+				contIteration = 0;
+				if(temperature == 0) break;
+			}
 			// reinicia o vetor a cada loop de troca 
 			for (int h=0; h<t; h++)
 				vizinhanca[h] = s[h];
@@ -59,63 +78,73 @@ int *bestNeighbour(int **m, int t, int *s){
 
 				vizinhanca[i] = vizinhanca[j];
 				vizinhanca[j] = VizinhoTrocado;
-
-				printf("resposta Objetivo da vizinhanca: %d\n",objetivo(vizinhanca,m,t));
-				printf("resposta Objetivo melhor vizinhanca: %d\n",objetivo(melhorVizinhanca,m,t));
-
+				int objVizinho = objetivo(vizinhanca,m,t);
+				int objMelhorVizinho = objetivo(melhorVizinhanca,m,t);
 				// Dado o vetor de vizinhos criado, compara com a melhor vizinhança
-				if (objetivo(vizinhanca,m,t) < objetivo(melhorVizinhanca,m,t)){
-					melhorVizinhanca = vizinhanca;
+
+				if (objVizinho <= objMelhorVizinho){
+					for (int i = 0; i < t; i++){
+						melhorVizinhanca[i] = vizinhanca[i];
+					}
+				} else {
+					//chama simulated pra ver se aceita com a probabilidade menor
+					int delta = objVizinho - objMelhorVizinho;
+					if(simulatedAnnealing(delta, m, t)){
+						for (int i = 0; i < t; i++){
+							melhorVizinhanca[i] = vizinhanca[i];
+						}
+					}
 				}
 			}
 		}
+		if(temperature == 0) break;
 	}
 
 	free(vizinhanca);
-
 	return melhorVizinhanca;
 }
 
-int main(int argc, char *argv[]) {
 
+int main(int argc, char *argv[]) {
 	int **matrizDistancias; // Matriz contendo a distância entre as cidades
 	int quantidadeCidades = 0; // Numero de cidades envolvidas no arquivo
-
-    int *solCorrente;
+	int *solCorrente;
 
 	// faz a leitura, recebe matriz de distâncias do arquivo escolhido e le a quantidade de cidades envolvidas no arquivo
 	escolherArquivo();
 	matrizDistancias = leMatrizdistancias();
 	quantidadeCidades = leNumeroCidades();
-
-	// Passar isso para alguma função
-	for(int i = 0; i < quantidadeCidades; i++){
-        for (int j = 0; j < quantidadeCidades; j++){
-
-            if (i > j){
-                printf("Matriz Distancias[%d][%d]: %d\n\n",i,j,matrizDistancias[i][j]);
-            }
-        }
-    }
+	iteration = pow(quantidadeCidades,2);
 
 	clock_t Ticks[2];
     Ticks[0] = clock();
-    //solCorrente = geraSolInicial(qtdCidades);
-    //solCorrente = bestNeighbour(matrizDistancias, qtdCidades, solCorrente);
+    solCorrente = geraSolInicial(quantidadeCidades);
+
+    while (temperature > 0){
+
+    	printf("%d \n", temperature);
+    	puts("");
+    	solCorrente = bestNeighbour(matrizDistancias, quantidadeCidades, solCorrente);
+    	    for (int i = 0; i<quantidadeCidades;i++){
+    			printf("%d ", solCorrente[i]);
+   			}
+   			printf("objetivo: %d ", objetivo(solCorrente,matrizDistancias,quantidadeCidades));
+    }
     //chamada funcao metaheuristica
+
+    printf("Objetivo : %d\n", objetivo(solCorrente,matrizDistancias, quantidadeCidades));
+    for (int i = 0; i < quantidadeCidades;i++){
+    	  printf("%d ", solCorrente[i]);
+    }
+
 
 	// Clock da CPU
     Ticks[1] = clock();
     double Tempo = (Ticks[1] - Ticks[0]) * 1000.0 / CLOCKS_PER_SEC;
     printf("Tempo gasto: %g ms.\n", Tempo);
 
-    /*for (i=0; i < qtdCidades;i++)
-    	printf("%d ", solCorrente[i]);
-
-	printf("\n");*/
 
 	// Fecha o arquivo lido
 	fechaArquivo();
-
 	return 0;
 }
