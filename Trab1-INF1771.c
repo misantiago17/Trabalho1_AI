@@ -45,6 +45,7 @@ int *geraSolInicial(int t) {
 	}
 	return v;
 
+	// Rever isso - fazer gulosa talvez
 	/*int posicionou = 0;
 
 	int *v = (int *) malloc (t* sizeof(int));
