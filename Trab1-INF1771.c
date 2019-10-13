@@ -234,8 +234,7 @@ int* crossoverOrdem1(int t, int *pai1, int *pai2){
     int init = (rand() % (t/2 + 1 - 0) + 0);
     int final = init+t/2;
 
-	int* filho = (int*) malloc (2 * t *sizeof(int));
-    //int** filhos = (int**) malloc (2 * t *sizeof(int*));
+	int* filho = (int*) malloc (t *sizeof(int));
 
 	// Primeiro filho
 	// copia a parte do pai 1
@@ -286,63 +285,30 @@ int* crossoverOrdem1(int t, int *pai1, int *pai2){
 		indexPai++;
     }
 
-	// Segundo Filho
-	// copia a parte do pai 2
-	/*for(int i = 0; i < t/2; i ++){
-        filhos[1][init + i] = pai2[init + i];
-    }
-	
-
-	isEqual = 0;
-	finalFilho = final;
-	indexFilho = 0;
-	finalPai = final;
-	indexPai = 0;
-
-	// copiando a parte do pai 1
-    for(int i = 1; i < t; i ++){
-
-		// quando chega no final do vetor, retorna para preencher o inicio
-			if (finalFilho + indexFilho == t){
-				finalFilho = 0;
-				indexFilho = 0;
-			}
-
-			if (finalPai + i == t){
-				finalPai = 0;
-				indexPai = 0;
-			}
-
-			if(finalFilho + indexFilho == init){
-				break;
-			}
-
-		// verifica se o pai tem valor repetido aos valores ja copiados do pai 1
-        for(int j = init; j < final ; j++){
-            if(pai2[j] == pai1[finalPai + indexPai]){
-				isEqual = 1;
-				break;
-            }
-        }
-
-		if(!isEqual){
-
-			filhos[1][finalFilho + indexFilho] = pai1[finalPai + indexPai];
-			indexFilho ++;
-
-		} else {
-			isEqual = 0;
-		}	
-
-		indexPai++;
-    }
-
-	puts("\n\nFilho 2");
-	for (int i=0; i<t; i++){
-		printf("%d ", filhos[1][i]);
-	}*/
-
     return filho;
+}
+
+int* Mutacao(int t, int* indiv){
+
+	int rand1, rand2, aux;
+
+	do {
+		rand1 = (rand() % (t + 1 - 0) + 0);
+		rand2 = (rand() % (t + 1 - 0) + 0);
+	} while(rand1 == rand2);
+
+	int* v = (int*) malloc (t *sizeof(int));
+
+	for(int i=0;i<t;i++){
+		v[i] = indiv[i];
+	}
+
+	aux = v[rand1];
+	v[rand1] = v[rand2];
+	v[rand2] = aux;
+
+	return v;
+
 }
 
 
@@ -391,98 +357,132 @@ int main(int argc, char *argv[]) {
 		solInit3 = geraSolInicialRandom(quantidadeCidades);
 		solInit4 = geraSolInicialRandom(quantidadeCidades);
 
-		resInit1 = objetivo(solInit1, matrizDistancias, quantidadeCidades);
-		resInit2 = objetivo(solInit2, matrizDistancias, quantidadeCidades);
-		resInit3 = objetivo(solInit3, matrizDistancias, quantidadeCidades);
-		resInit4 = objetivo(solInit4, matrizDistancias, quantidadeCidades);
+		int cont = 0;
 
-		int nullpai = 0;
-		int *pai1, *pai2;
-		pai1 = (int *) malloc (quantidadeCidades *sizeof(int));
-		pai2 = (int *) malloc (quantidadeCidades *sizeof(int));
+		while(cont < quantidadeCidades * quantidadeCidades){
 
-		int *index = roulette(resInit1, resInit2, resInit3, resInit4);
+			resInit1 = objetivo(solInit1, matrizDistancias, quantidadeCidades);
+			resInit2 = objetivo(solInit2, matrizDistancias, quantidadeCidades);
+			resInit3 = objetivo(solInit3, matrizDistancias, quantidadeCidades);
+			resInit4 = objetivo(solInit4, matrizDistancias, quantidadeCidades);
 
-		if(index[0] == 0 || index[1] == 0){
-			if (nullpai == 0){
-				nullpai = 1;
-				for(int i = 0; i < quantidadeCidades;i++)
-					pai1[i] = solInit1[i];
+			int nullpai = 0;
+			int *pai1, *pai2;
+			pai1 = (int *) malloc (quantidadeCidades *sizeof(int));
+			pai2 = (int *) malloc (quantidadeCidades *sizeof(int));
+
+			int *index = roulette(resInit1, resInit2, resInit3, resInit4);
+
+			if(index[0] == 0 || index[1] == 0){
+				if (nullpai == 0){
+					nullpai = 1;
+					for(int i = 0; i < quantidadeCidades;i++)
+						pai1[i] = solInit1[i];
+				}
+				else{
+					for(int i = 0; i < quantidadeCidades;i++)
+						pai2[i] = solInit1[i];
+				}
 			}
-			else{
-				for(int i = 0; i < quantidadeCidades;i++)
-					pai2[i] = solInit1[i];
+			if(index[0] == 1 || index[1] == 1){
+				if (nullpai == 0){
+					nullpai = 1;
+					for(int i = 0; i < quantidadeCidades;i++)
+						pai1[i] = solInit2[i];
+				}
+				else{
+					for(int i = 0; i < quantidadeCidades;i++)
+						pai2[i] = solInit2[i];
+				}
 			}
+			if(index[0] == 2 || index[1] == 2){
+				if (nullpai == 0){
+					nullpai = 1;
+					for(int i = 0; i < quantidadeCidades;i++)
+						pai1[i] = solInit3[i];
+				}
+				else{
+					for(int i = 0; i < quantidadeCidades;i++)
+						pai2[i] = solInit3[i];
+
+				}
+			}
+			if(index[0] == 3 || index[1] == 3){
+				if (nullpai == 0){
+					nullpai = 1;
+					pai1 = solInit4;
+				}
+				else{
+					pai2 = solInit4;
+				}
+			}
+
+			int *filho1 = crossoverOrdem1(quantidadeCidades, pai1, pai2);
+			int *filho2 = crossoverOrdem1(quantidadeCidades, pai2, pai1);
+
+			/*puts("\n\nPai 1");
+			for (int i=0; i<quantidadeCidades; i++){
+				printf("%d ", pai1[i]);
+			}
+
+			puts("\n\nPai 2");
+			for (int i=0; i<quantidadeCidades; i++){
+				printf("%d ", pai2[i]);
+			}*/
+
+			/*puts("\n\nFilho 1");
+			for (int i=0; i<quantidadeCidades; i++){
+				printf("%d ", filho1[i]);
+			}
+
+			puts("\n\nFilho 2");
+			for (int i=0; i<quantidadeCidades; i++){
+				printf("%d ", filho2[i]);
+			}*/
+
+			filho1 = Mutacao(quantidadeCidades,filho1);
+			filho2 = Mutacao(quantidadeCidades,filho2);
+
+			/*puts("\n\nFilho 1 Mutado");
+			for (int i=0; i<quantidadeCidades; i++){
+				printf("%d ", filho1[i]);
+			}
+
+			puts("\n\nFilho 2 Mutado");
+			for (int i=0; i<quantidadeCidades; i++){
+				printf("%d ", filho2[i]);
+			}*/
+
+			solInit1 = pai1;
+			solInit2 = pai2;
+			solInit3 = filho1;
+			solInit4 = filho2;
+
+			cont++;
 		}
-		if(index[0] == 1 || index[1] == 1){
-			if (nullpai == 0){
-				nullpai = 1;
-				for(int i = 0; i < quantidadeCidades;i++)
-					pai1[i] = solInit2[i];
-			}
-			else{
-				for(int i = 0; i < quantidadeCidades;i++)
-					pai2[i] = solInit2[i];
-			}
-		}
-		if(index[0] == 2 || index[1] == 2){
-			if (nullpai == 0){
-				nullpai = 1;
-				for(int i = 0; i < quantidadeCidades;i++)
-					pai1[i] = solInit3[i];
-			}
-			else{
-				for(int i = 0; i < quantidadeCidades;i++)
-					pai2[i] = solInit3[i];
 
-			}
-		}
-		if(index[0] == 3 || index[1] == 3){
-			if (nullpai == 0){
-				nullpai = 1;
-				pai1 = solInit4;
-			}
-			else{
-				pai2 = solInit4;
-			}
-		}
-
-		int *filho1 = crossoverOrdem1(quantidadeCidades, pai1, pai2);
-		int *filho2 = crossoverOrdem1(quantidadeCidades, pai2, pai1);
-
-		puts("\n\nPai 1");
-		for (int i=0; i<quantidadeCidades; i++){
-			printf("%d ", pai1[i]);
-		}
-
-		puts("\n\nPai 2");
-		for (int i=0; i<quantidadeCidades; i++){
-			printf("%d ", pai2[i]);
-		}
-
-		puts("\n\nFilho 1");
-		for (int i=0; i<quantidadeCidades; i++){
-			printf("%d ", filho1[i]);
-		}
-
-		puts("\n\nFilho 2");
-		for (int i=0; i<quantidadeCidades; i++){
-			printf("%d ", filho2[i]);
+		if(resInit1 > resInit2 && resInit1 > resInit3 && resInit1 > resInit4){
+			solCorrente = solInit1;
+		} else if (resInit2 > resInit1 && resInit2 > resInit3 && resInit2 > resInit4){
+			solCorrente = solInit2;
+		} else if (resInit3 > resInit1 && resInit3 > resInit2 && resInit3 > resInit4){
+			solCorrente = solInit3;
+		} else if (resInit4 > resInit1 && resInit4 > resInit2 && resInit4 > resInit3){
+			solCorrente = solInit4;
 		}
 
 		//Clock da CPU
 	    Ticks[1] = clock();
-
 	} 
 	else 
 		printf("Valor indisponivel\n");
 	
 
-	// printf("\n\nObjetivo da melhor solução : %d\n", objetivo(solCorrente,matrizDistancias, quantidadeCidades));
-	// puts("Melhor Solução: ");
-	// for (int i = 0; i < quantidadeCidades;i++){
-	//    printf("%d ", solCorrente[i]);
-	// }
+	printf("\n\nObjetivo da melhor solução : %d\n", objetivo(solCorrente,matrizDistancias, quantidadeCidades));
+	puts("Melhor Solução: ");
+	for (int i = 0; i < quantidadeCidades;i++){
+		printf("%d ", solCorrente[i]);
+	}
 	
 	double Tempo = (Ticks[1] - Ticks[0]) * 1000.0 / CLOCKS_PER_SEC;
 	printf("\nTempo gasto: %g ms.\n", Tempo);
