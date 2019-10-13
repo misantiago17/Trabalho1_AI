@@ -37,7 +37,7 @@ int simulatedAnnealing(int delta, int **mat, int t){
 	else return 1;
 }
 
-int *geraSolInicial(int t) {
+int *geraSolInicialRandom(int t){
 
 	int *v = (int *) malloc (t* sizeof(int));
 	for (int i=0; i< t; i++){
@@ -62,6 +62,15 @@ int *geraSolInicial(int t) {
 		posicionou = 0;
 	}
 	return v;*/
+}
+
+int *geraSolInicial(int t) {
+
+	int *v = (int *) malloc (t* sizeof(int));
+	for (int i=0; i< t; i++){
+		v[i] = i;
+	}
+	return v;
 }
 
 // Realiza o Swap completo e retorna o melhor vizinho
@@ -126,44 +135,120 @@ int *bestNeighbour(int **m, int t, int *s){
 	return melhorVizinhanca;
 }
 
+int *bubbleSort(int *v, int tam){ 
+  int aux, i, j; 
+ 
+  for(j=tam-1; j<=1; j--)
+  { 
+    for(i=0; i>j; i++)
+    { 
+      if(v[i] > v[i+1])
+      { 
+        aux=v[i]; 
+        v[i]=v[i+1]; 
+        v[i+1]=aux; 
+      } 
+    } 
+  } 
+  return v;
+}
+
+float *roulette( int objindividuo1, int objindividuo2, int objindividuo3, int objindividuo4){
+	int first, second, third, fourth;
+	int vet[4] = {objindividuo1, objindividuo2, objindividuo3, objindividuo4};
+	int *ordenado = bubbleSort(vet, 4);
+	int dif = ordenado[3] - ordenado[0];
+	int soma = ordenado[0]+ordenado[1]+ordenado[2]+ordenado[3];
+	float *prop = (float *) malloc (4* sizeof(float));
+	for(int i = 0; i < 4; i++){
+		printf("\n%d ", soma);
+		prop[i] = (ordenado[i]*100)/soma;
+		printf("\n%d ", prop[i]);
+	}
+	return prop;
+}	
+
 
 int main(int argc, char *argv[]) {
 	int **matrizDistancias; // Matriz contendo a distância entre as cidades
 	int quantidadeCidades = 0; // Numero de cidades envolvidas no arquivo
 	int *solCorrente;
+	int metaheuristica = 0;
+	clock_t Ticks[2];
+    printf("1 - Simulated Annealing\n2 - Genetic Algorithm\n");
+	printf("\nEscolha o método que deseja utilizar para resolver o Problema do Caxeiro Viajante: ");
+    scanf("%d", &metaheuristica);
+	printf("\n");
+
 
 	// faz a leitura, recebe matriz de distâncias do arquivo escolhido e le a quantidade de cidades envolvidas no arquivo
 	escolherArquivo();
 	matrizDistancias = leMatrizdistancias();
 	quantidadeCidades = leNumeroCidades();
-	temperature = quantidadeCidades * 5;
-	iteration = pow(quantidadeCidades,2);
 
-	clock_t Ticks[2];
-    Ticks[0] = clock();
+	if(metaheuristica == 1){ //SIMULATED ANNEALING
+		temperature = quantidadeCidades * 5;
+		iteration = pow(quantidadeCidades,2);
 
-    solCorrente = geraSolInicial(quantidadeCidades);
+	    Ticks[0] = clock();
 
-    while (temperature > 0){
+	    solCorrente = geraSolInicial(quantidadeCidades);
 
-    	solCorrente = bestNeighbour(matrizDistancias, quantidadeCidades, solCorrente);
+	    while (temperature > 0){
 
-		printf("\nobjetivo: %d ", objetivo(solCorrente,matrizDistancias,quantidadeCidades));
-    }
-    //chamada funcao metaheuristica
+	    	solCorrente = bestNeighbour(matrizDistancias, quantidadeCidades, solCorrente);
 
-    printf("\n\nObjetivo da melhor solução : %d\n", objetivo(solCorrente,matrizDistancias, quantidadeCidades));
-    puts("Melhor Solução: ");
-    for (int i = 0; i < quantidadeCidades;i++){
-    	  printf("%d ", solCorrente[i]);
-    }
+			printf("\nobjetivo: %d ", objetivo(solCorrente,matrizDistancias,quantidadeCidades));
+	    }
+		// Clock da CPU
+	    Ticks[1] = clock();
 
+	}
+	else if(metaheuristica == 2){ //GENECTIC ALGORITHM
+		
+		Ticks[0] = clock();
+		int *solInit1, *solInit2, *solInit3, *solInit4;
+		solInit1 = geraSolInicialRandom(quantidadeCidades);
+		solInit2 = geraSolInicialRandom(quantidadeCidades);
+		solInit3 = geraSolInicialRandom(quantidadeCidades);
+		solInit4 = geraSolInicialRandom(quantidadeCidades);
 
-	// Clock da CPU
-    Ticks[1] = clock();
-    double Tempo = (Ticks[1] - Ticks[0]) * 1000.0 / CLOCKS_PER_SEC;
-    printf("\nTempo gasto: %g ms.\n", Tempo);
+		puts("1");
+		for(int i = 0 ; i < quantidadeCidades;i++){
+			printf("%d ", solInit1[i]);
+		}
+		puts("\n2");
+		for(int i = 0 ; i < quantidadeCidades;i++){
+			printf("%d ", solInit2[i]);
+		}
+		puts("\n3");
+		for(int i = 0 ; i < quantidadeCidades;i++){
+			printf("%d ", solInit3[i]);
+		}
 
+		puts("\n4");
+		for(int i = 0 ; i < quantidadeCidades;i++){
+			printf("%d ", solInit4[i]);
+		}
+
+		roulette(objetivo(solInit1, matrizDistancias, quantidadeCidades),objetivo(solInit2, matrizDistancias, quantidadeCidades),objetivo(solInit3, matrizDistancias, quantidadeCidades),objetivo(solInit4, matrizDistancias, quantidadeCidades));
+
+		//Clock da CPU
+	    Ticks[1] = clock();
+
+	} 
+	else 
+		printf("Valor indisponivel\n");
+	
+
+	// printf("\n\nObjetivo da melhor solução : %d\n", objetivo(solCorrente,matrizDistancias, quantidadeCidades));
+	// puts("Melhor Solução: ");
+	// for (int i = 0; i < quantidadeCidades;i++){
+	//    printf("%d ", solCorrente[i]);
+	// }
+	
+	double Tempo = (Ticks[1] - Ticks[0]) * 1000.0 / CLOCKS_PER_SEC;
+	printf("\nTempo gasto: %g ms.\n", Tempo);
 
 	// Fecha o arquivo lido
 	fechaArquivo();
