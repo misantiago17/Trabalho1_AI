@@ -110,11 +110,12 @@ int main(int argc, char *argv[]) {
 	int quantidadeCidades = 0; // Numero de cidades envolvidas no arquivo
 	int *solCorrente;
 
-	// faz a leitura, recebe matriz de distâncias do arquivo escolhido e le a quantidade de cidades envolvidas no arquivo
+	// LEITURA DO ARQUIVO
 	escolherArquivo();
 	matrizDistancias = leMatrizdistancias();
 	quantidadeCidades = leNumeroCidades();
 
+	// Define o numero de iterações
 	iteration = pow(quantidadeCidades,2);
 
 	clock_t Ticks[2];

@@ -115,7 +115,8 @@ void leMatrizSuperior(int cont){
 
     int hasZeros = 0;
 
-    if (strcmp(textString,"DISPLAY_DATA_TYPE") == 0){
+    fscanf(file,"%s",&textString);
+    if (strcmp(textString,"DISPLAY_DATA_TYPE:") == 0){
         hasZeros = 1;
     }
 
