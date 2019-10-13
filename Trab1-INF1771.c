@@ -18,7 +18,8 @@ int iteration;
 
 int objetivo (int * sol, int **mat, int t){
 	int cont = 0;
-	for (int i = 0; i < t; i++){
+	for (int i = 0; i < t-1; i++){
+		
 		cont += mat[sol[i]][sol[i+1]];
 	}
 	return cont;
@@ -48,7 +49,6 @@ int *bestNeighbour(int **m, int t, int *s){
 
 	int *vizinhanca = (int *) malloc (t* sizeof(int));
 	int *melhorVizinhanca = (int *) malloc (t* sizeof(int));
-	//int *melhorVizinhanca = s;
 	int VizinhoTrocado;
 	int contIteration = 0;
 
@@ -62,12 +62,14 @@ int *bestNeighbour(int **m, int t, int *s){
 
 		// faz a troca desse valor em cada uma das posicoes do vetor
 		for (int j=0; j<t; j++){
+
 			contIteration++;
 			if (contIteration == iteration){
 				temperature -= 1; // diminui valor da temperatura a iterações do numero de cidades
 				contIteration = 0;
 				if(temperature == 0) break;
 			}
+
 			// reinicia o vetor a cada loop de troca 
 			for (int h=0; h<t; h++)
 				vizinhanca[h] = s[h];
@@ -75,7 +77,7 @@ int *bestNeighbour(int **m, int t, int *s){
 			// Faz a troca sem repetição (>)
 			// Faz a funcao objetiva do vetor original uma única vez (j=i && i=0)
 			if (j > i || (j==i && i==0)){ 	
-
+				
 				vizinhanca[i] = vizinhanca[j];
 				vizinhanca[j] = VizinhoTrocado;
 				int objVizinho = objetivo(vizinhanca,m,t);
@@ -119,21 +121,32 @@ int main(int argc, char *argv[]) {
 
 	clock_t Ticks[2];
     Ticks[0] = clock();
+
     solCorrente = geraSolInicial(quantidadeCidades);
+
+	/*puts("Solução inicial");
+	for(int i=0;i<quantidadeCidades;i++)
+		printf("%d ", solCorrente[i]);*/
 
     while (temperature > 0){
 
-    	printf("%d \n", temperature);
+    	printf("\nTemperatura: %d \n", temperature);
+
     	puts("");
     	solCorrente = bestNeighbour(matrizDistancias, quantidadeCidades, solCorrente);
-    	    for (int i = 0; i<quantidadeCidades;i++){
-    			printf("%d ", solCorrente[i]);
-   			}
-   			printf("objetivo: %d ", objetivo(solCorrente,matrizDistancias,quantidadeCidades));
+
+		puts("Melhor Solucao");
+		for(int i=0;i<quantidadeCidades;i++)
+			printf("%d ", solCorrente[i]);
+
+		for (int i = 0; i<quantidadeCidades;i++){
+			printf("%d ", solCorrente[i]);
+		}
+		printf("\nobjetivo: %d ", objetivo(solCorrente,matrizDistancias,quantidadeCidades));
     }
     //chamada funcao metaheuristica
 
-    printf("Objetivo : %d\n", objetivo(solCorrente,matrizDistancias, quantidadeCidades));
+    printf("\n\nObjetivo : %d\n", objetivo(solCorrente,matrizDistancias, quantidadeCidades));
     for (int i = 0; i < quantidadeCidades;i++){
     	  printf("%d ", solCorrente[i]);
     }
