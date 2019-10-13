@@ -33,13 +33,22 @@ int simulatedAnnealing(int delta, int **mat, int t){
 	else return 1;
 }
 
+// random first solution
 int *geraSolInicial(int t) {
-
-	// Fazer algoritmo guloso
+	int posicionou = 0;
 
 	int *v = (int *) malloc (t* sizeof(int));
-	for (int i=0; i< t; i++){
-		v[i] = i;
+	for (int i=t-1; i >= 0; i--){
+
+		while(posicionou == 0){
+			int num = (rand() % (t + 1 - 0) + 0);
+
+			if (v[num] == 0){
+				v[num] = i;
+				posicionou = 1;
+			}
+		}
+		posicionou = 0;
 	}
 	return v;
 }
@@ -124,9 +133,9 @@ int main(int argc, char *argv[]) {
 
     solCorrente = geraSolInicial(quantidadeCidades);
 
-	/*puts("Solução inicial");
+	puts("Solução inicial");
 	for(int i=0;i<quantidadeCidades;i++)
-		printf("%d ", solCorrente[i]);*/
+		printf("%d ", solCorrente[i]);
 
     while (temperature > 0){
 
