@@ -70,7 +70,6 @@ int** leMatrizdistancias(){
     fscanf(file,"%s",&textString);
 	if (strcmp(textString,"LOWER_DIAG_ROW") == 0 || strcmp(textString,"LOWER_ROW") == 0) { 
         leMatrizInferior(cont);
-
     } else if (strcmp(textString,"UPPER_DIAG_ROW") == 0 || strcmp(textString,"UPPER_ROW") == 0) {
         leMatrizSuperior(cont);
     }
@@ -79,7 +78,6 @@ int** leMatrizdistancias(){
 }
 
 int leNumeroCidades(){
-
     return quantidadeCidades;
 }
 
@@ -113,48 +111,22 @@ void leMatrizSuperior(int cont){
     int i = 0;
     int j = 0;
 
-    int hasZeros = 0;
-
-    fscanf(file,"%s",&textString);
-    if (strcmp(textString,"DISPLAY_DATA_TYPE:") == 0){
-        hasZeros = 1;
-    }
-
     while(strcmp(textString,"EDGE_WEIGHT_SECTION") != 0) 
 		fscanf(file,"%s",&textString);
 
-    while(cont > 0) {  
-
-        if(i > j) {
-            if (j < quantidadeCidades){
-                j++;
-            }
+    while(cont > 0) { 
+        if(i >= j) {
+            j++;
 
         } else if (j == quantidadeCidades) {
             i++;
             j = 0;
 
         } else {
-
-            if (hasZeros){
-                
-                fscanf(file,"%d",&matDist[i][j]);
-                matDist[j][i] = matDist[i][j];
-
-            } else {
-
-                if(i==j){
-                    matDist[j][i] = 0;
-                } else {
-                    fscanf(file,"%d",&matDist[i][j]);
-                    matDist[j][i] = matDist[i][j];
-                }
-            }
-
+            fscanf(file,"%d",&matDist[i][j]);
+            matDist[j][i] = matDist[i][j];
             cont--;
             j++;
         }
-
     }
-
 }
