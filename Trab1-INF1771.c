@@ -5,6 +5,8 @@
 #include <time.h>
 #include "lerArquivos.h"
 
+#define FLOAT_TO_INT(x) ((x)>=0?(int)((x)+0.5):(int)((x)-0.5))
+
 // Genetic Algorithm
 // Inicialize a população com candidatos randomicos
 // Avalie cada candidato
@@ -39,14 +41,7 @@ int simulatedAnnealing(int delta, int **mat, int t){
 
 int *geraSolInicialRandom(int t){
 
-	int *v = (int *) malloc (t* sizeof(int));
-	for (int i=0; i< t; i++){
-		v[i] = i;
-	}
-	return v;
-
-	// Rever isso - fazer gulosa talvez
-	/*int posicionou = 0;
+	int posicionou = 0;
 
 	int *v = (int *) malloc (t* sizeof(int));
 	for (int i=t-1; i >= 0; i--){
@@ -61,7 +56,7 @@ int *geraSolInicialRandom(int t){
 		}
 		posicionou = 0;
 	}
-	return v;*/
+	return v;
 }
 
 int *geraSolInicial(int t) {
@@ -135,37 +130,116 @@ int *bestNeighbour(int **m, int t, int *s){
 	return melhorVizinhanca;
 }
 
+// genetic
 int *bubbleSort(int *v, int tam){ 
-  int aux, i, j; 
- 
-  for(j=tam-1; j<=1; j--)
-  { 
-    for(i=0; i>j; i++)
-    { 
-      if(v[i] > v[i+1])
-      { 
-        aux=v[i]; 
-        v[i]=v[i+1]; 
-        v[i+1]=aux; 
-      } 
-    } 
-  } 
-  return v;
+  	int aux; 
+
+  	for(int j=tam-1; j >= 0; j--) { 
+    	for(int i=0; i < j; i++) { 
+			if(v[i] > v[i+1]) { 
+				aux=v[i]; 
+				v[i]=v[i+1]; 
+				v[i+1]=aux; 		
+			} 
+    	} 
+  	} 
+
+  	return v;
 }
 
-float *roulette( int objindividuo1, int objindividuo2, int objindividuo3, int objindividuo4){
-	int first, second, third, fourth;
+// Sorteia os dois pais dentro da proporção de sua solução
+int *roulette(int objindividuo1, int objindividuo2, int objindividuo3, int objindividuo4){
+
 	int vet[4] = {objindividuo1, objindividuo2, objindividuo3, objindividuo4};
-	int *ordenado = bubbleSort(vet, 4);
-	int dif = ordenado[3] - ordenado[0];
-	int soma = ordenado[0]+ordenado[1]+ordenado[2]+ordenado[3];
-	float *prop = (float *) malloc (4* sizeof(float));
-	for(int i = 0; i < 4; i++){
-		printf("\n%d ", soma);
-		prop[i] = (ordenado[i]*100)/soma;
-		printf("\n%d ", prop[i]);
+	int *ordenadoInv = bubbleSort(vet, 4);	// vetor invertidamente ordenado
+
+	int soma = 0;
+	for (int i=0; i<4; i++) {
+		soma += ordenadoInv[i];
 	}
-	return prop;
+
+	// encontra a percentagem de participação de cada valor da solução para o próximo filho
+	float *prob = (float *) malloc (4* sizeof(float));
+	for(int i = 0; i < 4; i++){
+		prob[3-i] = FLOAT_TO_INT((ordenadoInv[i]*100.0)/soma);
+	}
+
+	// verifica se passa do numero maximo de cidades (ou é menor)
+	int somaInt = 0;
+	for(int i=0; i<4; i++){
+		somaInt += prob[i];
+	}
+	if (somaInt > 100)
+		prob[0] -= 1;
+	else if (somaInt < 100)
+		prob[0] += 1;
+
+	for(int i=0; i<4; i++){
+		printf("\nprob: %f - obj: %d", prob[i], ordenadoInv[i]);
+	}
+
+	// Faz o range de cada proporção
+	int *rangeInRoulette = (int *) malloc (4* sizeof(int));
+	int num = 0;
+	for (int i=0; i<4; i++){
+		num += prob[i];
+		rangeInRoulette[i] = num;
+	}
+
+	puts("");
+	for(int i=0; i<4; i++){
+		printf("\nrange Max: %d - obj: %d", rangeInRoulette[i], ordenadoInv[i]);
+	}
+	
+	// Sorteia 
+	int* parents = (int *) malloc (2* sizeof(int));
+	int numParents = 0;
+	while(numParents < 2){
+		int sorte = (rand() % (100 + 1 - 0) + 0);
+		puts("");
+		printf("\nsorte: %d", sorte);
+
+		for(int i=0; i<4; i++){
+			if (i==0){
+				if (sorte < rangeInRoulette[i]) {
+					// evita repetir o pai
+					if(numParents == 0){
+						parents[0] = 0;
+						numParents ++;
+						break;
+					} else {
+						if (parents[0] != 0){
+							parents[1] = 0;
+							numParents ++;
+							break;
+						}
+					}
+				}
+			} else {
+				if ((sorte > rangeInRoulette[i-1]) && (sorte < rangeInRoulette[i])){
+					// evita repetir o pai
+					if(numParents == 0){
+						parents[0] = i;
+						numParents ++;
+						break;
+					} else {
+						if (parents[0] != i){
+							parents[1] = i;
+							numParents ++;
+							break;
+						}
+					}
+					
+				}
+			}
+		}
+
+	}
+	
+	puts("");
+	printf("\npai 1: %d -  obj: %d\npai 2: %d -  obj: %d\n", parents[0], ordenadoInv[parents[0]], parents[1], ordenadoInv[parents[1]]);
+
+	return parents;
 }	
 
 
@@ -208,12 +282,13 @@ int main(int argc, char *argv[]) {
 		
 		Ticks[0] = clock();
 		int *solInit1, *solInit2, *solInit3, *solInit4;
+		int resInit1, resInit2, resInit3, resInit4;
 		solInit1 = geraSolInicialRandom(quantidadeCidades);
 		solInit2 = geraSolInicialRandom(quantidadeCidades);
 		solInit3 = geraSolInicialRandom(quantidadeCidades);
 		solInit4 = geraSolInicialRandom(quantidadeCidades);
 
-		puts("1");
+		/*puts("1");
 		for(int i = 0 ; i < quantidadeCidades;i++){
 			printf("%d ", solInit1[i]);
 		}
@@ -229,9 +304,14 @@ int main(int argc, char *argv[]) {
 		puts("\n4");
 		for(int i = 0 ; i < quantidadeCidades;i++){
 			printf("%d ", solInit4[i]);
-		}
+		}*/
 
-		roulette(objetivo(solInit1, matrizDistancias, quantidadeCidades),objetivo(solInit2, matrizDistancias, quantidadeCidades),objetivo(solInit3, matrizDistancias, quantidadeCidades),objetivo(solInit4, matrizDistancias, quantidadeCidades));
+		resInit1 = objetivo(solInit1, matrizDistancias, quantidadeCidades);
+		resInit2 = objetivo(solInit2, matrizDistancias, quantidadeCidades);
+		resInit3 = objetivo(solInit3, matrizDistancias, quantidadeCidades);
+		resInit4 = objetivo(solInit4, matrizDistancias, quantidadeCidades);
+
+		roulette(resInit1, resInit2, resInit3, resInit4);
 
 		//Clock da CPU
 	    Ticks[1] = clock();
