@@ -5,26 +5,10 @@
 #include <time.h>
 #include "lerArquivos.h"
 
-int temperature = 500;
-int iteration;
-
-// Genetic Algorithm
-// Inicialize a população com candidatos randomicos
-// Avalie cada candidato
-// Repita até condição de termino
-//	1 - Selecione os pais
-// 	2 - Recombine o par de pais
-//	3 - Mutacione o reusltado da troca
-//	4 - Avalie novos candidatos
-//	5 - Selecione individuos para a proxima geração
-
 // Simulated Annealing 
-// 1 - Escolha um estado inicial s (por algoritmo guloso?)
-// 2 - Escolha aleatoriamente um estado t, a partir dos vizinhos de s
-// 3 - Se f(t) for melhor do que f(s), então s = t
-// 4 - senão, com uma probabilidade baixa, faça s = t
-// 5 - Repete o passo 2 até parar
-// Quanto que  solução vale no total - repensar na função objetivo
+
+int temperature;
+int iteration;
 
 int objetivo (int * sol, int **mat, int t){
 	int cont = 0;
@@ -43,7 +27,6 @@ int simulatedAnnealing(int delta, int **mat, int t){
 	else return 1;
 }
 
-// random first solution
 int *geraSolInicial(int t) {
 
 	int *v = (int *) malloc (t* sizeof(int));
@@ -51,24 +34,6 @@ int *geraSolInicial(int t) {
 		v[i] = i;
 	}
 	return v;
-
-	// Rever essa escolha aleatória - fazer guloso talvez
-	/*int posicionou = 0;
-
-	int *v = (int *) malloc (t* sizeof(int));
-	for (int i=t-1; i >= 0; i--){
-
-		while(posicionou == 0){
-			int num = (rand() % (t + 1 - 0) + 0);
-
-			if (v[num] == 0){
-				v[num] = i;
-				posicionou = 1;
-			}
-		}
-		posicionou = 0;
-	}
-	return v;*/
 }
 
 // Realiza o Swap completo e retorna o melhor vizinho
@@ -143,7 +108,7 @@ int main(int argc, char *argv[]) {
 	escolherArquivo();
 	matrizDistancias = leMatrizdistancias();
 	quantidadeCidades = leNumeroCidades();
-
+	temperature = quantidadeCidades * 5;
 	iteration = pow(quantidadeCidades,2);
 
 	clock_t Ticks[2];
@@ -151,29 +116,16 @@ int main(int argc, char *argv[]) {
 
     solCorrente = geraSolInicial(quantidadeCidades);
 
-	puts("Solução inicial");
-	for(int i=0;i<quantidadeCidades;i++)
-		printf("%d ", solCorrente[i]);
-
     while (temperature > 0){
 
-    	printf("\nTemperatura: %d \n", temperature);
-
-    	puts("");
     	solCorrente = bestNeighbour(matrizDistancias, quantidadeCidades, solCorrente);
 
-		puts("Melhor Solucao");
-		for(int i=0;i<quantidadeCidades;i++)
-			printf("%d ", solCorrente[i]);
-
-		for (int i = 0; i<quantidadeCidades;i++){
-			printf("%d ", solCorrente[i]);
-		}
 		printf("\nobjetivo: %d ", objetivo(solCorrente,matrizDistancias,quantidadeCidades));
     }
     //chamada funcao metaheuristica
 
-    printf("\n\nObjetivo : %d\n", objetivo(solCorrente,matrizDistancias, quantidadeCidades));
+    printf("\n\nObjetivo da melhor solução : %d\n", objetivo(solCorrente,matrizDistancias, quantidadeCidades));
+    puts("Melhor Solução: ");
     for (int i = 0; i < quantidadeCidades;i++){
     	  printf("%d ", solCorrente[i]);
     }
@@ -182,7 +134,7 @@ int main(int argc, char *argv[]) {
 	// Clock da CPU
     Ticks[1] = clock();
     double Tempo = (Ticks[1] - Ticks[0]) * 1000.0 / CLOCKS_PER_SEC;
-    printf("Tempo gasto: %g ms.\n", Tempo);
+    printf("\nTempo gasto: %g ms.\n", Tempo);
 
 
 	// Fecha o arquivo lido
