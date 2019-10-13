@@ -44,6 +44,23 @@ int *geraSolInicial(int t) {
 		v[i] = i;
 	}
 	return v;
+
+	/*int posicionou = 0;
+
+	int *v = (int *) malloc (t* sizeof(int));
+	for (int i=t-1; i >= 0; i--){
+
+		while(posicionou == 0){
+			int num = (rand() % (t + 1 - 0) + 0);
+
+			if (v[num] == 0){
+				v[num] = i;
+				posicionou = 1;
+			}
+		}
+		posicionou = 0;
+	}
+	return v;*/
 }
 
 // Realiza o Swap completo e retorna o melhor vizinho
