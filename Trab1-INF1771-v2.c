@@ -8,6 +8,16 @@
 int temperature = 500;
 int iteration;
 
+// Genetic Algorithm
+// Inicialize a população com candidatos randomicos
+// Avalie cada candidato
+// Repita até condição de termino
+//	1 - Selecione os pais
+// 	2 - Recombine o par de pais
+//	3 - Mutacione o reusltado da troca
+//	4 - Avalie novos candidatos
+//	5 - Selecione individuos para a proxima geração
+
 // Simulated Annealing 
 // 1 - Escolha um estado inicial s (por algoritmo guloso?)
 // 2 - Escolha aleatoriamente um estado t, a partir dos vizinhos de s

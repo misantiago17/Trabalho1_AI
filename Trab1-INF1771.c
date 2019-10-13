@@ -8,6 +8,16 @@
 int temperature = 500;
 int iteration;
 
+// Genetic Algorithm
+// Inicialize a população com candidatos randomicos
+// Avalie cada candidato
+// Repita até condição de termino
+//	1 - Selecione os pais
+// 	2 - Recombine o par de pais
+//	3 - Mutacione o reusltado da troca
+//	4 - Avalie novos candidatos
+//	5 - Selecione individuos para a proxima geração
+
 // Simulated Annealing 
 // 1 - Escolha um estado inicial s (por algoritmo guloso?)
 // 2 - Escolha aleatoriamente um estado t, a partir dos vizinhos de s
@@ -35,7 +45,15 @@ int simulatedAnnealing(int delta, int **mat, int t){
 
 // random first solution
 int *geraSolInicial(int t) {
-	int posicionou = 0;
+
+	int *v = (int *) malloc (t* sizeof(int));
+	for (int i=0; i< t; i++){
+		v[i] = i;
+	}
+	return v;
+
+	// Rever essa escolha aleatória - fazer guloso talvez
+	/*int posicionou = 0;
 
 	int *v = (int *) malloc (t* sizeof(int));
 	for (int i=t-1; i >= 0; i--){
@@ -50,7 +68,7 @@ int *geraSolInicial(int t) {
 		}
 		posicionou = 0;
 	}
-	return v;
+	return v;*/
 }
 
 // Realiza o Swap completo e retorna o melhor vizinho
