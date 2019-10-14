@@ -7,16 +7,6 @@
 
 #define FLOAT_TO_INT(x) ((x)>=0?(int)((x)+0.5):(int)((x)-0.5))
 
-// Genetic Algorithm
-// Inicialize a população com candidatos randomicos
-// Avalie cada candidato
-// Repita até condição de termino
-//	1 - Selecione os pais
-// 	2 - Recombine o par de pais
-//	3 - Mutacione o reusltado da troca
-//	4 - Avalie novos candidatos
-//	5 - Selecione individuos para a proxima geração
-
 // Simulated Annealing 
 
 int temperature;
@@ -130,7 +120,7 @@ int *bestNeighbour(int **m, int t, int *s){
 	return melhorVizinhanca;
 }
 
-// genetic
+// Genetic Algorithm
 int *bubbleSort(int *v, int tam){ 
   	int aux; 
 
@@ -236,7 +226,6 @@ int* crossoverOrdem1(int t, int *pai1, int *pai2){
 
 	int* filho = (int*) malloc (t *sizeof(int));
 
-	// Primeiro filho
 	// copia a parte do pai 1
     for(int i = 0; i < t/2; i ++){
         filho[init + i] = pai1[init + i];
@@ -290,12 +279,18 @@ int* crossoverOrdem1(int t, int *pai1, int *pai2){
 
 int* Mutacao(int t, int* indiv){
 
-	int rand1, rand2, aux;
+	int rand1 = 0, rand2 = 0, aux = 0;
+
 
 	do {
-		rand1 = (rand() % (t + 1 - 0) + 0);
-		rand2 = (rand() % (t + 1 - 0) + 0);
+		rand1 = (rand() % (t - 0) + 0);
+		rand2 = (rand() % (t - 0) + 0);
+
+		if(rand1 != rand2)
+			break;
+
 	} while(rand1 == rand2);
+
 
 	int* v = (int*) malloc (t *sizeof(int));
 
@@ -420,38 +415,8 @@ int main(int argc, char *argv[]) {
 			int *filho1 = crossoverOrdem1(quantidadeCidades, pai1, pai2);
 			int *filho2 = crossoverOrdem1(quantidadeCidades, pai2, pai1);
 
-			/*puts("\n\nPai 1");
-			for (int i=0; i<quantidadeCidades; i++){
-				printf("%d ", pai1[i]);
-			}
-
-			puts("\n\nPai 2");
-			for (int i=0; i<quantidadeCidades; i++){
-				printf("%d ", pai2[i]);
-			}*/
-
-			/*puts("\n\nFilho 1");
-			for (int i=0; i<quantidadeCidades; i++){
-				printf("%d ", filho1[i]);
-			}
-
-			puts("\n\nFilho 2");
-			for (int i=0; i<quantidadeCidades; i++){
-				printf("%d ", filho2[i]);
-			}*/
-
 			filho1 = Mutacao(quantidadeCidades,filho1);
 			filho2 = Mutacao(quantidadeCidades,filho2);
-
-			/*puts("\n\nFilho 1 Mutado");
-			for (int i=0; i<quantidadeCidades; i++){
-				printf("%d ", filho1[i]);
-			}
-
-			puts("\n\nFilho 2 Mutado");
-			for (int i=0; i<quantidadeCidades; i++){
-				printf("%d ", filho2[i]);
-			}*/
 
 			solInit1 = pai1;
 			solInit2 = pai2;
